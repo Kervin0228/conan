@@ -1,0 +1,45 @@
+#include <Adafruit_NeoPixel.h>
+#define Light_PIN A0  //光照传感器接AO引脚
+#define Light_value1 350
+#define Light_value2 600//光强预设值，把光分为3个阶级
+#include <Servo.h>
+#define servo_pin SDA
+#define humanHotSensor 4 //PIR传感器D4
+Servo myservo;
+bool humanHotState = false;
+int sensorValue;
+int pos=0, angle =150;  //舵机旋转精度和角度
+int t=0; //舵机第一次运行的时间点
+void setup() {
+  pinMode(humanHotSensor, INPUT);
+Serial.begin(115200);  //初始化串口通信，并将波特率设置为115200
+myservo.attach(servo_pin);}
+void loop()        //无返回值loop函数
+ {
+  delay(1000);//延迟一秒，计时
+  ++t;
+  Serial.println (t);
+  sensorValue = analogRead(Light_PIN);  //光检测
+  if(t%86400==0)//一天的时间长度
+  {
+    t=0;
+ // Serial.println(sensorValue);  //光强串口显示
+  if(humanHotSensor)//检测屋内是否有人
+ {
+  Serial.println(sensorValue);  //光强串口显示
+  if (sensorValue > Light_value1)                          //
+  {
+   for(pos = 0; pos < 150; pos += 1)  // 从0度到150度运  动 
+  {                                                     // 每次步进一度
+    myservo.write(pos);        // 指定舵机转向的角度
+    delay(15);                       // 等待15ms让舵机到达指定位置
+  } 
+  for(pos = 150; pos>=1; pos-=1)   //从150度到0度运动  
+  {                                
+    myservo.write(pos);         // 指定舵机转向的角度 
+    delay(15);                        // 等待15ms让舵机到达指定位置 
+  } 
+ }
+ }
+ }
+ }
